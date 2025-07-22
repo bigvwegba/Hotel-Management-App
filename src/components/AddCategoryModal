@@ -1,0 +1,77 @@
+// src/pages/Categories.jsx
+import React from "react";
+import AddCategoryModal from "../components/AddCategoryModal";
+
+export default function Categories() {
+  return (
+    <div className="dashboard">
+      <h1 className="page-title">Product Categories</h1>
+
+      <div className="table-container">
+        <table className="styled-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Drinks</td>
+              <td>Bottled beverages, water, and soft drinks</td>
+              <td><span className="status active">Active</span></td>
+              <td><button className="btn-link">Edit</button></td>
+            </tr>
+            <tr>
+              <td>Meals</td>
+              <td>Main dishes including rice and soups</td>
+              <td><span className="status active">Active</span></td>
+              <td><button className="btn-link">Edit</button></td>
+            </tr>
+            <tr>
+              <td>Snacks</td>
+              <td>Small chops and light refreshments</td>
+              <td><span className="status inactive">Inactive</span></td>
+              <td><button className="btn-link">Edit</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <AddCategoryModal isVisible={false} />
+    </div>
+  );
+}
+
+// src/components/AddCategoryModal.jsx
+import React from "react";
+
+export default function AddCategoryModal({ isVisible }) {
+  return (
+    <div className={`modal-overlay ${isVisible ? "show" : "hide"}`}>
+      <div className="modal-content">
+        <h2 className="modal-title">Add New Category</h2>
+        <form className="modal-form">
+          <label>Category Name</label>
+          <input type="text" placeholder="e.g. Snacks" />
+
+          <label>Description</label>
+          <textarea rows="3" placeholder="Short description"></textarea>
+
+          <label>Status</label>
+          <select>
+            <option>Active</option>
+            <option>Inactive</option>
+          </select>
+
+          <div className="modal-actions">
+            <button type="submit" className="btn-submit">Save</button>
+            <button type="button" className="btn-cancel">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
