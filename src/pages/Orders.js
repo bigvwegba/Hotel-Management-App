@@ -1,51 +1,78 @@
 // src/pages/Orders.jsx
-import React from "react";
+import React, { useState } from "react";
+import OrderModal from "../components/OrderModal";
+import useOrderStore from "../store/useOrderStore";
 
 export default function Orders() {
-  return (
-    <div className="dashboard">
-      <h1 className="page-title">Orders</h1>
+  const orders = useOrderStore((state) => state.orders);
+  const [showModal, setShowModal] = useState(false);
+  const [editOrder, setEditOrder] = useState(null);
 
-      <div className="table-container">
-        <table className="styled-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Room</th>
-              <th>Items</th>
-              <th>Status</th>
-              <th>Ordered At</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>#ORD-001</td>
-              <td>101</td>
-              <td>2x Coke, 1x Jollof Rice</td>
-              <td><span className="status pending">Pending</span></td>
-              <td>12:30 PM</td>
-              <td><button className="btn-link">Manage</button></td>
-            </tr>
-            <tr>
-              <td>#ORD-002</td>
-              <td>203</td>
-              <td>1x Water, 1x Chicken Suya</td>
-              <td><span className="status delivered">Delivered</span></td>
-              <td>1:15 PM</td>
-              <td><button className="btn-link">Manage</button></td>
-            </tr>
-            <tr>
-              <td>#ORD-003</td>
-              <td>112</td>
-              <td>1x Sprite</td>
-              <td><span className="status cancelled">Cancelled</span></td>
-              <td>2:00 PM</td>
-              <td><button className="btn-link">Manage</button></td>
-            </tr>
-          </tbody>
-        </table>
+  const handleAddOrder = () => {
+    setEditOrder(null);
+    setShowModal(true);
+  };
+
+  const handleEditOrder = (order) => {
+    setEditOrder(order);
+    setShowModal(true);
+  };
+
+  const handleStatusChange = (id, newStatus) => {
+    useOrderStore.getState().updateOrderStatus(id, newStatus);
+  };
+
+  return (
+    <div className="orders-page">
+      <div className="orders-header">
+        <h1 className="page-title">Hotel Orders</h1>
+        <button className="btn-primary" onClick={handleAddOrder}>Add Order</button>
       </div>
+
+      {orders.length === 0 ? (
+        <p>No orders yet.</p>
+      ) : (
+        <div className="order-grid">
+          <div className="order-row order-header">
+            <div>Order ID</div>
+            <div>Guest</div>
+            <div>Items</div>
+            <div>Total</div>
+            <div>Type</div>
+            <div>Status</div>
+            <div>Actions</div>
+          </div>
+          {orders.map((order) => (
+            <div className="order-row" key={order.id}>
+              <div>{order.id}</div>
+              <div>{order.guestName || "N/A"} (Room {order.roomNumber})</div>
+              <div>{order.items.map(item => `${item.name} x${item.quantity}`).join(", ")}</div>
+              <div>₦{order.total.toLocaleString()}</div>
+              <div>{order.orderType}</div>
+              <div>
+                <span className={`status ${order.status.toLowerCase()}`}>{order.status}</span>
+              </div>
+              <div className="order-actions">
+                <button className="btn-outline" onClick={() => handleEditOrder(order)}>Edit</button>
+                <button
+                  className="btn-outline warning"
+                  onClick={() => handleStatusChange(order.id, "Cancelled")}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {showModal && (
+        <OrderModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          editOrder={editOrder}
+        />
+      )}
     </div>
   );
 }

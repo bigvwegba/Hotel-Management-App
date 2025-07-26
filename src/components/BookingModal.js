@@ -1,203 +1,213 @@
-import { useEffect, useState } from 'react'; // You need to import useState from React
-import useBookingStore from '../store/useBookingStore';
-import { isRoomAvailable, isValidDateRange } from '../utils/bookingValidation'; // Import your validation function
-import { Toaster, toast} from 'react-hot-toast';
-import useGuestStore from '../store/useGuestStore'; // Import guest store
+import React, { useEffect, useState } from "react";
+import useBookingStore from "../store/useBookingStore";
+import useRoomStore from "../store/useRoomStore";
+import useOrderStore from "../store/useOrderStore";
+import useServiceStore from "../store/useServiceStore";
+import toast from "react-hot-toast";
+import { v4 as uuidv4 } from 'uuid';
 
-import useRoomStore from '../store/useRoomStore'; // Import room store
 
 export default function BookingModal({ isVisible, onClose, onEdit }) {
-  const [formData, setFormData] = useState({
-    guestName: '',
-    roomNumber: '',
-    checkIn: '',
-    email: '',
-    phone: '',
-    address: '',
-    checkOut: '',
-    bookingStatus: ''
-  });
-  const isEditMode = Boolean(onEdit);
-  const addGuests = useGuestStore(state => state.addGuestIfNotExists);
-  const addBooking = useBookingStore(state => state.addBooking);
- 
-  useEffect(()=> {
-    if (isEditMode) {
-      setFormData({
-        guestName: onEdit.guestName,
-        roomNumber: onEdit.roomNumber,
-        email: onEdit.email,
-        phone: onEdit.phone,
-        address: onEdit.address,
-        checkIn: onEdit.checkIn,
-        checkOut: onEdit.checkOut,
-        bookingStatus: onEdit.bookingStatus
-      });
-    }else{
-      setFormData({
-        guestName: '',
-        roomNumber: '',
-        email: '',
-        phone: '',
-        address: '',
-        checkIn: '',
-        checkOut: '',
-        bookingStatus: ''
-      });
-    }
-  }, [isEditMode, onEdit]);
+  // Stores
+  const { addBooking, updateBooking } = useBookingStore();
+  const { rooms, getAvailableRooms, markRoomAsOccupied, markRoomAsAvailable } = useRoomStore();
+  const addOrder = useOrderStore((state) => state.addOrder);
+  const { services } = useServiceStore();
 
- 
-  const bookings = useBookingStore(state => state.bookings); // Get bookings from store
-  const rooms = useRoomStore(state => state.rooms);
-  const addGuest = useGuestStore(state => state.addGuestIfNotExists);
-  const closeModal = onClose;
-   if (!isVisible) return null;
+  // State
+  const [bookingData, setBookingData] = useState({
+    guestName: "",
+    email: "",
+    phone: "",
+    address: "",
+    roomNumber: "",
+    checkIn: "",
+    checkOut: "",
+    bookingStatus: "Confirmed",
+    services: [],
+  });
+
+  const availableRooms = getAvailableRooms();
+
+  useEffect(() => {
+    if (onEdit) {
+      setBookingData(onEdit);
+    }
+  }, [onEdit]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value
-    }));
+    setBookingData(prev => ({ ...prev, [name]: value }));
   };
-  
-  const handleBookingSubmit = (e) => {
-    e.preventDefault();
-  if (
-    !formData.guestName || !formData.email || !formData.phone || !formData.address ||
-    !formData.roomNumber || !formData.checkIn || !formData.checkOut || !formData.bookingStatus
-  ) {
-    toast.error("Please fill in all fields.");
-    return;
-  }
 
-     const newBooking = {
-    id: Date.now(),
-    guestName: String(formData.guestName), // Ensure string
-    roomNumber: Number(formData.roomNumber) || 0, // Ensure number (fallback to 0)
-    email: String(formData.email), // Ensure string
-    phone: String(formData.phone), // Ensure string
-    address: String(formData.address), // Ensure string
-    checkIn: String(formData.checkIn), // Ensure string
-    checkOut: String(formData.checkOut), // Ensure string
-    bookingStatus: String(formData.bookingStatus), // Ensure string
-  };
-  if(!isValidDateRange(newBooking.checkIn, newBooking.checkOut)) {
-    toast.error("Invalid booking data. Please check your inputs.");
-    return;
-  }
-  if(!isRoomAvailable(bookings, newBooking.roomNumber, newBooking.checkIn, newBooking.checkOut)) {
-    toast.error("Room is not available for the selected dates.");
-    return;
-  }
-  
-  addBooking(newBooking);
-  addGuest(newBooking.guestName); // Add guest if not exists
-    toast.success("Booking added successfully!");
-    // Reset form data
-  setFormData({
-    guestName: '',
-    roomNumber: '',
-    email: '',
-    phone: '',
-    address: '',
-    checkIn: '',
-      checkOut: '',
-      bookingStatus: ''
+  const handleServiceToggle = (service) => {
+    setBookingData(prev => {
+      const existing = prev.services.some(s => s.id === service.id);
+      return {
+        ...prev,
+        services: existing
+          ? prev.services.filter(s => s.id !== service.id)
+          : [...prev.services, service]
+      };
     });
-    closeModal();
-  }
+  };
+
+  const calculateCost = () => {
+    const room = rooms.find(r => r.roomNumber === bookingData.roomNumber);
+    if (!room) return 0;
+    
+    const checkIn = new Date(bookingData.checkIn);
+    const checkOut = new Date(bookingData.checkOut);
+    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24)) || 1;
+    
+    const servicesCost = bookingData.services.reduce((sum, s) => sum + (s.price || 0), 0);
+    return (room.price * nights) + servicesCost;
+  };
+
+  const handleSubmit = () => {
+    if (!bookingData.guestName || !bookingData.roomNumber) {
+      toast.error("Guest name and room number are required");
+      return;
+    }
+
+    const bookingId = onEdit?.id || uuidv4().substring(0, 6);
+    const finalBooking = { ...bookingData, id: bookingId };
+
+    if (onEdit) {
+      updateBooking(finalBooking);
+    } else {
+      addBooking(finalBooking);
+      addOrder({
+        bookingId,
+        guestName: finalBooking.guestName,
+        roomNumber: finalBooking.roomNumber,
+        date: finalBooking.checkIn,
+        amount: calculateCost(),
+        services: finalBooking.services,
+      });
+    }
+
+    if (["Confirmed", "Checked-in"].includes(finalBooking.bookingStatus)) {
+      markRoomAsOccupied(finalBooking.roomNumber);
+    } else if (["Cancelled", "Completed"].includes(finalBooking.bookingStatus)) {
+      markRoomAsAvailable(finalBooking.roomNumber);
+    }
+
+    onClose();
+  };
+
+  if (!isVisible) return null;
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <Toaster position="top-right" />
-        <h2 className="modal-title">{isEditMode ? 'Edit Booking' : 'New Booking'}</h2>
+        <div className="modal-header">
+          <h2>{onEdit ? "Edit Booking" : "Add Booking"}</h2>
+          <button onClick={onClose} className="close-button">&times;</button>
+        </div>
 
-        <form className="modal-form" onSubmit={handleBookingSubmit}>
-          <label>Guest Name</label>
+        <div className="modal-body">
           <input
             type="text"
             name="guestName"
-            placeholder="John Doe"
-            value={formData.guestName}
+            placeholder="Guest Name"
+            value={bookingData.guestName}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={bookingData.email}
+            onChange={handleChange}
+          />
+          <input
+            type="tel"
+            name="phone"
+            placeholder="Phone"
+            value={bookingData.phone}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="address"
+            placeholder="Address"
+            value={bookingData.address}
             onChange={handleChange}
           />
 
-          <label>Room Number</label>
-        <select name="roomNumber" value={formData.roomNumber} onChange={handleChange}>
-          <option value="" disabled>Select Room</option>
-          {rooms.map((room) => (
-            <option key={room.id} value={room.id} disabled={isEditMode? true:false}>
-              {room.id}
-            </option>
-          ))}
-        </select>
-        <label>Email</label>
-        <input
-          type="email"
-          name="email"
-          placeholder="guest@example.com"
-          value={formData.email}
-          onChange={handleChange}
-        />
+          <select
+            name="roomNumber"
+            value={bookingData.roomNumber}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Room</option>
+            {availableRooms.map(room => (
+              <option key={room.id} value={room.roomNumber}>
+                {room.roomNumber} - {room.type} (₦{room.price})
+              </option>
+            ))}
+          </select>
 
-        <label>Phone</label>
-        <input
-          type="tel"
-          name="phone"
-          placeholder="e.g. +2348012345678"
-          value={formData.phone}
-          onChange={handleChange}
-        />
-
-        <label>Address</label>
-        <input
-          type="text"
-          name="address"
-          placeholder="123 Main Street"
-          value={formData.address}
-          onChange={handleChange}
-        />
-
-          <label>Check-in Date</label>
           <input
             type="date"
             name="checkIn"
-            value={formData.checkIn} // Fixed: should be formData.checkIn
+            value={bookingData.checkIn}
             onChange={handleChange}
+            min={new Date().toISOString().split('T')[0]}
           />
-
-          <label>Check-out Date</label>
           <input
             type="date"
             name="checkOut"
-            value={formData.checkOut} // Fixed: should be formData.checkOut
+            value={bookingData.checkOut}
             onChange={handleChange}
+            min={bookingData.checkIn || new Date().toISOString().split('T')[0]}
           />
 
-          <label>Status</label>
           <select
             name="bookingStatus"
-            value={formData.bookingStatus}
+            value={bookingData.bookingStatus}
             onChange={handleChange}
           >
-            <option value="" disabled>Select status</option>
             <option value="Confirmed">Confirmed</option>
             <option value="Checked-in">Checked-in</option>
             <option value="Completed">Completed</option>
             <option value="Cancelled">Cancelled</option>
           </select>
 
-          <div className="modal-actions">
-            <button type="submit" className="btn-submit">
-              Save
-            </button>
-             <button type="button" className="btn-cancel" onClick={onClose}>
-              Cancel
-            </button>
+          <div className="services-section">
+            <h3>Additional Services</h3>
+            <div className="services-grid">
+              {services.map(service => (
+                <div
+                  key={service.id}
+                  className={`service-card ${
+                    bookingData.services.some(s => s.id === service.id) ? 'selected' : ''
+                  }`}
+                  onClick={() => handleServiceToggle(service)}
+                >
+                  <h4>{service.name}</h4>
+                  <p>₦{service.price}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </form>
+
+          <div className="cost-display">
+            <p>Total: ₦{calculateCost().toLocaleString()}</p>
+          </div>
+        </div>
+
+        <div className="modal-footer">
+          <button onClick={onClose} className="btn-outline">
+            Cancel
+          </button>
+          <button onClick={handleSubmit} className="btn-primary">
+            {onEdit ? "Update" : "Save"}
+          </button>
+        </div>
       </div>
     </div>
   );

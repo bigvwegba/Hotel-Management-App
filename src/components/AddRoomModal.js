@@ -1,9 +1,10 @@
 // src/components/AddRoomModal.jsx
 import {useEffect, useState} from "react";
 import useRoomStore from "../store/useRoomStore";
+import toast from "react-hot-toast";
 
 export default function AddRoomModal({ isVisible, onClose, updatedRoom }) {
-  const {addRoom, updateRoom} = useRoomStore();
+  const {addRoom, updateRoom, getAvailableRooms} = useRoomStore();
   const [formData, setFormData] = useState({
     roomNumber: '',
     roomType:  '',
@@ -41,41 +42,45 @@ export default function AddRoomModal({ isVisible, onClose, updatedRoom }) {
   
   const handleRoomSubmit = (e) => {
     e.preventDefault();
-  const { roomNumber, roomType, status, price } = formData;
+    const { roomNumber, roomType, status, price } = formData;
 
-  if (
-    !roomNumber.trim() ||
-    !roomType.trim() ||
-    !status.trim() ||
-    price === "" ||
-    isNaN(price) ||
-    parseFloat(price) <= 0
-  ) {
-    alert("Please fill in all fields correctly.");
-    return;
-  }
+    if (
+      !roomNumber.trim() ||
+      !roomType.trim() ||
+      !status.trim() ||
+      price === "" ||
+      isNaN(price) ||
+      parseFloat(price) <= 0
+    ) {
+      toast.error("Please fill in all fields correctly.");
+      return;
+    }
+
     const roomValues = {
       id: formData.roomNumber.trim(),
+      roomNumber: formData.roomNumber.trim(),
       roomType: formData.roomType,
       status: formData.status,
       price: formData.price ? parseFloat(formData.price) : 0,
     }
+
     if(isEditMode) {
       updateRoom(roomValues);
-    console.log("Room updated:", roomValues);
-      
-    } else{
+
+    } else {
       addRoom(roomValues);
+  
     }
   
     setFormData({
-        roomNumber: '',
+      roomNumber: '',
       roomType: '',
       status: '',
       price: '',
     })
     onClose();
   }
+
   if (!isVisible) return null;
 
   return (

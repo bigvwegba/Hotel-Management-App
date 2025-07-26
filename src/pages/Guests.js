@@ -34,60 +34,54 @@ export default function Guests() {
   );
 
   return (
-    <div className="guests-page">
-      <div className="guests-header">
-        <h1 className="page-title">Guests</h1>
-      </div>
+<div className="guest-table-wrapper">
+  <div className="guest-table-header">
+    <div>Name</div>
+    <div>Email</div>
+    <div>Phone</div>
+    <div>Address</div>
+    <div>Bookings</div>
+    <div>Check-ins</div>
+  </div>
 
-      {guests.length === 0 ? (
-        <p>No guests available.</p>
-      ) : (
-        <div className="guest-grid">
-          {guests.map((guest, index) => {
-            const bookingStatusCounts = guest.bookings.reduce((acc, b) => {
-              const status = b.bookingStatus || "Unknown";
-              acc[status] = (acc[status] || 0) + 1;
-              return acc;
-            }, {});
+  {guests.map((guest, index) => {
+    const bookingStatusCounts = guest.bookings.reduce((acc, b) => {
+      const status = b.bookingStatus || "Unknown";
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
 
-            const recentCheckIns = guest.bookings
-              .map((b) => b.checkIn)
-              .filter(Boolean)
-              .sort((a, b) => new Date(b) - new Date(a))
-              .slice(0, 3); // limit to 3 recent
+    const recentCheckIns = guest.bookings
+      .map((b) => b.checkIn)
+      .filter(Boolean)
+      .sort((a, b) => new Date(b) - new Date(a))
+      .slice(0, 3);
 
-            return (
-              <div className="guest-card" key={index}>
-                <h2>{guest.guestName}</h2>
-                <p><strong>Email:</strong> {guest.email}</p>
-                <p><strong>Phone:</strong> {guest.phone}</p>
-                <p><strong>Address:</strong> {guest.address}</p>
-                <p><strong>Total Bookings:</strong> {guest.bookings.length}</p>
-
-                <div className="status-breakdown">
-                  <strong>Status Count:</strong>
-                  <ul>
-                    {Object.entries(bookingStatusCounts).map(([status, count]) => (
-                      <li key={status}>
-                        {status}: {count}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="recent-checkins" title={recentCheckIns.join("\n")}>
-                  <strong>Recent Check-ins:</strong>{" "}
-                  {recentCheckIns.length > 0 ? (
-                    <span>{recentCheckIns.join(", ")}</span>
-                  ) : (
-                    <span>N/A</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+    return (
+      <div className="guest-table-row" key={index}>
+        <div className="guest-name">
+          <strong>{guest.guestName}</strong>
         </div>
-      )}
-    </div>
+        <div>{guest.email}</div>
+        <div>{guest.phone}</div>
+        <div>{guest.address}</div>
+        <div>
+          {Object.entries(bookingStatusCounts).map(([status, count]) => (
+            <div key={status} className={`status-badge ${status.toLowerCase()}`}>
+              {status}: {count}
+            </div>
+          ))}
+        </div>
+        <div className="recent-checkins">
+          {recentCheckIns.length > 0 ? (
+            <span>{recentCheckIns.join(", ")}</span>
+          ) : (
+            <span>N/A</span>
+          )}
+        </div>
+      </div>
+    );
+  })}
+</div>
   );
 }

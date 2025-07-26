@@ -1,5 +1,8 @@
 // src/App.jsx
 import React, { useState, useEffect } from "react";
+import { Toaster } from 'react-hot-toast';
+
+
 import Dashboard from "./pages/Dashboard";
 import Rooms from "./pages/Rooms";
 import Staff from "./pages/Staff";
@@ -12,7 +15,18 @@ import Topbar from "./components/Topbar";
 import Auth from "./pages/Auth";
 import Payments from "./pages/Payments"
 import "./styles/globals.css";
-import './styles/product.css'; // Create and style this file accordingly
+import "./styles/dashboard.css";
+import "./styles/layout.css";
+import './styles/product.css';
+import './styles/modal.css';
+import './styles/booking.css';
+import './styles/guest.css';
+import './styles/room.css';
+import './styles/order.css';
+import './styles/orderModal.css';
+import './styles/auth.css';
+
+
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -37,12 +51,14 @@ export default function App() {
 
   return isAuthenticated ? (
     <div className="app-container">
-      <Sidebar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      <div className="main-content">
-        <Topbar />
-        {renderPage()}
+      <Toaster position="top-right" />
+      <Topbar /> {/* Comes before everything */}
+      <div className="content-wrapper">
+        <Sidebar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <div className="main-content">{renderPage()}</div>
       </div>
     </div>
+
   ) : (
     <Auth onLogin={() => setIsAuthenticated(true)} />
   );

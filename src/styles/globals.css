@@ -1,4 +1,4 @@
-
+/*
 :root {
   --primary-color: #2f80ed;
   --light-bg: #f9fafb;
@@ -179,7 +179,7 @@ body {
   cursor: pointer;
   text-decoration: underline;
 }
-/* /* Rooms  Page Styles */ 
+
 .rooms-page {
   padding: 2rem;
 }
@@ -379,7 +379,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  overflow-y: auto; /* allow scrolling on small screens */
+  overflow-y: auto; 
 }
 
 .modal-overlay.hide {
@@ -393,8 +393,8 @@ body {
   padding: 1.5rem;
   width: 100%;
   max-width: 500px;
-  max-height: 90vh; /* limit height */
-  overflow-y: auto; /* scroll inside modal */
+  max-height: 90vh;
+  overflow-y: auto; 
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
@@ -442,13 +442,13 @@ body {
   cursor: pointer;
   width: 100%;
   display: block;
-  padding: 0.5rem 1rem;  /* Add back some spacing */
-  font: inherit;         /* Respect parent font */
+  padding: 0.5rem 1rem;  
+  font: inherit;      
   color: inherit;
 }
 
-/* Add this to your global styles (e.g., in globals.css) */
-/* Payments styling */
+
+
 .payment-summary {
   background: #fff;
   border-radius: 12px;
@@ -515,7 +515,7 @@ body {
   font-weight: 600;
   padding-left: 1rem;
 }
-/* Layout for bookings page */
+
 .bookings-page {
   padding: 2rem;
 }
@@ -533,7 +533,7 @@ body {
   gap: 1.5rem;
 }
 
-/* Booking card */
+
 .booking-card {
   background-color: white;
   border: 1px solid #ddd;
@@ -565,7 +565,7 @@ body {
   margin-top: 1rem;
 }
 
-/* Reusable buttons */
+
 .btn-primary {
   background-color: #007bff;
   color: white;
@@ -609,7 +609,7 @@ body {
   color: #dc3545;
 }
 
-/* Modal (shared styles — you may already have this) */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -903,3 +903,5 @@ body {
 .status-badge.cancelled {
   background-color: #eb5757;
 }
+*/
+/* App container handles overall layout */
