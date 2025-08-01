@@ -1,0 +1,66 @@
+/* housekeeping.css */
+.housekeeping-section {
+  margin: 2rem 0;
+}
+
+.housekeeping-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.housekeeping-card {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.hk-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge.clean {
+  background: #dcfce7;
+  color: #166534;
+}
+.status-badge.in-progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+.status-badge.pending {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+.assign-btn {
+  background: #eff6ff;
+  color: #3b82f6;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.staff, .time {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.time {
+  display: block;
+}

@@ -2,6 +2,7 @@
 import {useEffect, useState} from "react";
 import useRoomStore from "../store/useRoomStore";
 import toast from "react-hot-toast";
+import "../styles/room-modal.css"
 
 export default function AddRoomModal({ isVisible, onClose, updatedRoom }) {
   const {addRoom, updateRoom, getAvailableRooms} = useRoomStore();

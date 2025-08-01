@@ -6,6 +6,7 @@ import { CSVLink } from "react-csv";
 import BookingModal from "../components/BookingModal";
 import useBookingStore from "../store/useBookingStore";
 import useRoomStore from "../store/useRoomStore";
+import '../styles/booking.css';
 
 
 const localizer = momentLocalizer(moment);
@@ -162,69 +163,82 @@ export default function Bookings() {
       </div>
 
       {view === 'list' ? (
-        <div className="bookings-table">
-          <div className="table-header">
-            <div>Guest</div>
-            <div>Room</div>
-            <div>Dates</div>
-            <div>Status</div>
-            <div>Total</div>
-            <div>Actions</div>
-          </div>
-          
-          {filteredBookings.length === 0 ? (
-            <div className="empty-state">No bookings found</div>
-          ) : (
-            filteredBookings.map(booking => (
-              <div className="table-row" key={booking.id}>
-                <div>
-                  <strong>{booking.guestName}</strong>
-                  <div className="text-muted">{booking.email || 'No email'}</div>
-                </div>
-                <div>
-                  <div>Room {booking.roomNumber}</div>
-                  <div className="text-muted">
-                    {rooms.find(r => r.roomNumber === booking.roomNumber)?.type || 'N/A'}
-                  </div>
-                </div>
-                <div>
-                  <div>{moment(booking.checkIn).format('MMM D, YYYY')}</div>
-                  <div className="text-muted">
-                    to {moment(booking.checkOut).format('MMM D, YYYY')}
-                  </div>
-                </div>
-                <div>
-                  <span className={`status-badge ${booking.bookingStatus.toLowerCase()}`}>
-                    {booking.bookingStatus}
-                  </span>
-                </div>
-                <div>₦{calculateBookingTotal(booking).toLocaleString()}</div>
-                <div className="actions">
-                  <button 
-                    className="btn-icon"
-                    onClick={() => {
-                      setEditBooking(booking);
-                      setShowBookingModal(true);
-                    }}
-                    title="Edit"
-                  >
-                    ✏️
-                  </button>
-                  <button 
-                    className="btn-icon danger"
-                    onClick={() => {
-                      if (window.confirm("Cancel this booking?")) {
-                        removeBooking(booking.id);
-                      }
-                    }}
-                    title="Cancel"
-                  >
-                    ❌
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+        <div className="compact-table-container">
+          <table className="compact-bookings-table">
+            <thead>
+              <tr>
+                <th className="compact-header guest-header">Guest</th>
+                <th className="compact-header room-header">Room</th>
+                <th className="compact-header dates-header">Dates</th>
+                <th className="compact-header status-header">Status</th>
+                <th className="compact-header total-header">Total</th>
+                <th className="compact-header actions-header">
+                  <span className="actions-label">Actions</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredBookings.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="empty-state">No bookings found</td>
+                </tr>
+              ) : (
+                filteredBookings.map(booking => (
+                  <tr key={booking.id} className="compact-row">
+                    <td className="compact-cell guest-cell" data-label="Guest">
+                      <strong>{booking.guestName}</strong>
+                      <div className="text-muted">{booking.email || 'No email'}</div>
+                    </td>
+                    <td className="compact-cell room-cell" data-label="Room">
+                      <div>Room {booking.roomNumber}</div>
+                      <div className="text-muted">
+                        {rooms.find(r => r.roomNumber === booking.roomNumber)?.type || 'N/A'}
+                      </div>
+                    </td>
+                    <td className="compact-cell dates-cell" data-label="Dates">
+                      <div>{moment(booking.checkIn).format('MMM D, YYYY')}</div>
+                      <div className="text-muted">
+                        to {moment(booking.checkOut).format('MMM D, YYYY')}
+                      </div>
+                    </td>
+                    <td className="compact-cell status-cell" data-label="Status">
+                      <span className={`status-badge ${booking.bookingStatus.toLowerCase()}`}>
+                        {booking.bookingStatus}
+                      </span>
+                    </td>
+                    <td className="compact-cell total-cell" data-label="Total">
+                      ₦{calculateBookingTotal(booking).toLocaleString()}
+                    </td>
+                    <td className="compact-cell actions-cell" data-label="Actions">
+                      <div className="compact-actions">
+                        <button 
+                          className="btn-icon"
+                          onClick={() => {
+                            setEditBooking(booking);
+                            setShowBookingModal(true);
+                          }}
+                          aria-label="Edit booking"
+                        >
+                          ✏️
+                        </button>
+                        <button 
+                          className="btn-icon danger"
+                          onClick={() => {
+                            if (window.confirm("Cancel this booking?")) {
+                              removeBooking(booking.id);
+                            }
+                          }}
+                          aria-label="Cancel booking"
+                        >
+                          ❌
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       ) : (
         <div className="calendar-container">

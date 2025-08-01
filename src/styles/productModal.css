@@ -1,0 +1,199 @@
+/* productModal.css - Consistent with booking modal style */
+
+/* Core Modal Structure */
+.product-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: booking-modal-fadein 0.2s ease;
+}
+
+.product-modal-content {
+  background: white;
+  border-radius: 10px;
+  width: 95%;
+  max-width: 500px; /* Slightly narrower than booking modal */
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+  padding: 25px;
+}
+
+/* Header/Titles */
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Form Elements */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.modal-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.modal-form input,
+.modal-form select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.modal-form input:focus,
+.modal-form select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+/* Select Dropdown Styling */
+.modal-form select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+/* Button Styles - Consistent with booking modal */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.btn-submit {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #4a90e2;
+  color: white;
+  border: none;
+}
+
+.btn-submit:hover {
+  background: #3a7bc8;
+}
+
+.btn-cancel {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+  border: 1px solid #ddd;
+  color: #555;
+}
+
+.btn-cancel:hover {
+  background: #f5f5f5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .product-modal-content {
+    padding: 20px;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .btn-submit,
+  .btn-cancel {
+    width: 100%;
+  }
+}
+
+/* Animation - Reused from booking modal */
+@keyframes booking-modal-fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/*helper function css*/
+
+/* History Detail Styles */
+.history-detail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.history-detail-group p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.detail-value-bold {
+  font-weight: 600;
+  color: #333;
+}
+
+.detail-value-normal {
+  font-weight: 500;
+  color: #444;
+}
+
+.detail-value-positive {
+  font-weight: 600;
+  color: #2e7d32; /* Green */
+}
+
+.detail-value-negative {
+  font-weight: 600;
+  color: #c62828; /* Red */
+}
+
+/* Additional styles to match your existing design */
+.history-item {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.history-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.history-action-type {
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.history-timestamp {
+  color: #666;
+  font-size: 13px;
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import useProductStore from '../store/useProductStore';
+import '../styles/productModal.css';
 
 export default function ProductModal({ isVisible, onClose }) {
   const {
@@ -89,10 +90,13 @@ useEffect(() => {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="product-modal-overlay">
+      <div className="product-modal-content">
         <Toaster position="top-right" />
         <h2 className="modal-title">{isEditMode ? 'Edit Product' : 'New Product'}</h2>
+          <button className="modal_close" onClick={onClose}>
+            ×
+          </button>
         <form className="modal-form" onSubmit={handleSubmit}>
           <label>Name</label>
           <input type="text" name="name" value={formData.name} onChange={handleChange} />

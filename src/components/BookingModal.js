@@ -5,9 +5,11 @@ import useOrderStore from "../store/useOrderStore";
 import useServiceStore from "../store/useServiceStore";
 import toast from "react-hot-toast";
 import { v4 as uuidv4 } from 'uuid';
-
+import '../styles/modal.css';
+import '../styles/bookingModal.css';
 
 export default function BookingModal({ isVisible, onClose, onEdit }) {
+  console.log(isVisible+ " BookingModal visibility");
   // Stores
   const { addBooking, updateBooking } = useBookingStore();
   const { rooms, getAvailableRooms, markRoomAsOccupied, markRoomAsAvailable } = useRoomStore();
@@ -64,7 +66,9 @@ export default function BookingModal({ isVisible, onClose, onEdit }) {
     return (room.price * nights) + servicesCost;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
     if (!bookingData.guestName || !bookingData.roomNumber) {
       toast.error("Guest name and room number are required");
       return;
@@ -99,115 +103,166 @@ export default function BookingModal({ isVisible, onClose, onEdit }) {
   if (!isVisible) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h2>{onEdit ? "Edit Booking" : "Add Booking"}</h2>
-          <button onClick={onClose} className="close-button">&times;</button>
+     <div className="booking-modal-overlay">
+      <div className="booking-modal-main" onClick={(e) => e.stopPropagation()}>
+        <div className="booking-modal-header">
+          <h2 className="booking-modal-title">
+            {onEdit ? "Edit Booking" : "New Booking"}
+          </h2>
+          <button className="booking-modal-close" onClick={onClose}>
+            ×
+          </button>
         </div>
 
-        <div className="modal-body">
-          <input
-            type="text"
-            name="guestName"
-            placeholder="Guest Name"
-            value={bookingData.guestName}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={bookingData.email}
-            onChange={handleChange}
-          />
-          <input
-            type="tel"
-            name="phone"
-            placeholder="Phone"
-            value={bookingData.phone}
-            onChange={handleChange}
-          />
-          <input
-            type="text"
-            name="address"
-            placeholder="Address"
-            value={bookingData.address}
-            onChange={handleChange}
-          />
+        <form onSubmit={handleSubmit}>
+          <div className="booking-modal-body">
+            {/* Guest Information */}
+            <div className="booking-modal-input-group">
+              <label className="booking-modal-label">Guest Name</label>
+              <input
+                className="booking-modal-input"
+                type="text"
+                name="guestName"
+                value={bookingData.guestName}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-          <select
-            name="roomNumber"
-            value={bookingData.roomNumber}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select Room</option>
-            {availableRooms.map(room => (
-              <option key={room.id} value={room.roomNumber}>
-                {room.roomNumber} - {room.type} (₦{room.price})
-              </option>
-            ))}
-          </select>
+            <div className="booking-modal-input-group">
+              <label className="booking-modal-label">Email</label>
+              <input
+                className="booking-modal-input"
+                type="email"
+                name="email"
+                value={bookingData.email}
+                onChange={handleChange}
+              />
+            </div>
 
-          <input
-            type="date"
-            name="checkIn"
-            value={bookingData.checkIn}
-            onChange={handleChange}
-            min={new Date().toISOString().split('T')[0]}
-          />
-          <input
-            type="date"
-            name="checkOut"
-            value={bookingData.checkOut}
-            onChange={handleChange}
-            min={bookingData.checkIn || new Date().toISOString().split('T')[0]}
-          />
+            {/* Room Selection */}
+            <div className="booking-modal-input-group">
+              <label className="booking-modal-label">Room</label>
+              <select
+                className="booking-modal-input"
+                name="roomNumber"
+                value={bookingData.roomNumber}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Room</option>
+                {availableRooms.map(room => (
+                  <option key={room.id} value={room.roomNumber}>
+                    {room.roomNumber} - {room.type} (₦{room.price})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <select
-            name="bookingStatus"
-            value={bookingData.bookingStatus}
-            onChange={handleChange}
-          >
-            <option value="Confirmed">Confirmed</option>
-            <option value="Checked-in">Checked-in</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
+            <div className="booking-modal-input-group">
+              <label className="booking-modal-label">Phone</label>
+              <input
+                className="booking-modal-input"
+                type="tel"
+                name="phone"
+                value={bookingData.phone}
+                onChange={handleChange}
+              />
+            </div>
 
-          <div className="services-section">
-            <h3>Additional Services</h3>
-            <div className="services-grid">
-              {services.map(service => (
-                <div
-                  key={service.id}
-                  className={`service-card ${
-                    bookingData.services.some(s => s.id === service.id) ? 'selected' : ''
-                  }`}
-                  onClick={() => handleServiceToggle(service)}
-                >
-                  <h4>{service.name}</h4>
-                  <p>₦{service.price}</p>
-                </div>
-              ))}
+            {/* Dates */}
+            <div className="booking-modal-input-group">
+              <label className="booking-modal-label">Check-in</label>
+              <input
+                className="booking-modal-input"
+                type="date"
+                name="checkIn"
+                value={bookingData.checkIn}
+                onChange={handleChange}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+
+            <div className="booking-modal-input-group">
+              <label className="booking-modal-label">Check-out</label>
+              <input
+                className="booking-modal-input"
+                type="date"
+                name="checkOut"
+                value={bookingData.checkOut}
+                onChange={handleChange}
+                min={bookingData.checkIn || new Date().toISOString().split('T')[0]}
+              />
+            </div>
+
+            {/* Status */}
+            <div className="booking-modal-input-group">
+              <label className="booking-modal-label">Status</label>
+              <select
+                className="booking-modal-input"
+                name="bookingStatus"
+                value={bookingData.bookingStatus}
+                onChange={handleChange}
+              >
+                <option value="Confirmed">Confirmed</option>
+                <option value="Checked-in">Checked-in</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+
+            <div className="booking-modal-input-group">
+              <label className="booking-modal-label">Address</label>
+              <input
+                className="booking-modal-input"
+                type="text"
+                name="address"
+                value={bookingData.address}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* Services Section */}
+            <div className="booking-modal-services">
+              <h3 className="booking-modal-services-title">Additional Services</h3>
+              <div className="booking-modal-services-grid">
+                {services.map(service => (
+                  <div
+                    key={service.id}
+                    className={`booking-modal-service-card ${
+                      bookingData.services.some(s => s.id === service.id) ? 'selected' : ''
+                    }`}
+                    onClick={() => handleServiceToggle(service)}
+                  >
+                    <div className="booking-modal-service-name">{service.name}</div>
+                    <div className="booking-modal-service-price">₦{service.price}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Total */}
+            <div className="booking-modal-total">
+              Total: ₦{calculateCost().toLocaleString()}
             </div>
           </div>
 
-          <div className="cost-display">
-            <p>Total: ₦{calculateCost().toLocaleString()}</p>
+          <div className="booking-modal-footer">
+            <button 
+              type="button" 
+              className="booking-modal-btn booking-modal-btn-outline"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className="booking-modal-btn booking-modal-btn-primary"
+            >
+              {onEdit ? "Update Booking" : "Confirm Booking"}
+            </button>
           </div>
-        </div>
-
-        <div className="modal-footer">
-          <button onClick={onClose} className="btn-outline">
-            Cancel
-          </button>
-          <button onClick={handleSubmit} className="btn-primary">
-            {onEdit ? "Update" : "Save"}
-          </button>
-        </div>
+        </form>
       </div>
     </div>
   );

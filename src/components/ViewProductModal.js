@@ -1,92 +1,103 @@
-import { useEffect } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
-import useProductStore from '../store/useProductStore';
+import React from 'react';
+import { Toaster, toast } from 'react-hot-toast';
+import { formatActionType, renderHistoryDetail } from '../utils/productHistoryHelpers';
+import '../styles/viewProductModal.css';
 
-export default function ViewProductModal({ isVisible, onClose }) {
-  const { viewProduct, setViewProduct } = useProductStore(); // ✅ Correct store state
-
-  useEffect(() => {
-    if (!isVisible) setViewProduct(null);
-  }, [isVisible, setViewProduct]);
-
-  if (!isVisible || !viewProduct) return null;
+const ViewProductModal = ({ product, onClose }) => {
+  if (!product) return null;
 
   const {
     name,
+    inventoryId,
     category,
     price,
     quantity,
+    unit,
     sold,
     lastRestocked,
-    inventoryId,
-    unit,
     reorderLevel,
     supplier,
     location,
-    consumable,
-    history = [],
-  } = viewProduct; // ✅ Correct product to display
+    isConsumable,
+    isRoomServiceItem,
+    history = []
+  } = product;
+ 
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="view-product-modal-overlay">
+      <div className="view-product-modal-content">
         <Toaster position="top-right" />
-        <h2 className="modal-title">Product Details</h2>
-
-        <div className="product-details">
-          <p><strong>Name:</strong> {name}</p>
-          <p>
-            <strong>Inventory ID:</strong> 
-            <span className="font-mono">{inventoryId}</span>
-            <button
-              className="copy-id-button"
-              onClick={() => {
-                navigator.clipboard.writeText(inventoryId);
-                toast.success("Copied ID!");
-              }}
-            >
-              Copy
-            </button>
-          </p>
-
-          <p><strong>Category:</strong> {category}</p>
-          <p><strong>Price:</strong> ₦{price}</p>
-          <p><strong>Quantity:</strong> {quantity} {unit}</p>
-          <p><strong>Sold:</strong> {sold}</p>
-          <p><strong>Last Restocked:</strong> {new Date(lastRestocked).toLocaleString()}</p>
-          <p><strong>Reorder Level:</strong> {reorderLevel}</p>
-          <p><strong>Supplier:</strong> {supplier}</p>
-          <p><strong>Location:</strong> {location}</p>
-          <p><strong>Consumable:</strong> {consumable ? 'Yes' : 'No'}</p>
+        <h2 className="view-product-modal-title">Product Details</h2>
+          <button className="modal_close" onClick={onClose}>
+            ×
+          </button>
+        <div className="product-details-grid">
+          <div className="product-details-column">
+            <p><span className="detail-label">Name:</span> {name}</p>
+            <p className="inventory-id-row">
+              <span className="detail-label">Inventory ID:</span> 
+              <span className="inventory-id-value">{inventoryId}</span>
+              <button
+                className="copy-id-button"
+                onClick={() => {
+                  navigator.clipboard.writeText(inventoryId);
+                  toast.success("Copied ID!");
+                }}
+              >
+                Copy
+              </button>
+            </p>
+            <p><span className="detail-label">Category:</span> {category}</p>
+            <p><span className="detail-label">Price:</span> ₦{price?.toLocaleString()}</p>
+            <p><span className="detail-label">Quantity:</span> {quantity} {unit}</p>
+          </div>
+          <div className="product-details-column">
+            <p><span className="detail-label">Sold:</span> {sold}</p>
+            <p><span className="detail-label">Last Restocked:</span> {lastRestocked ? new Date(lastRestocked).toLocaleString() : 'Never'}</p>
+            <p><span className="detail-label">Reorder Level:</span> {reorderLevel}</p>
+            <p><span className="detail-label">Supplier:</span> {supplier}</p>
+            <p><span className="detail-label">Location:</span> {location}</p>
+            <p><span className="detail-label">Consumable:</span> {isConsumable ? 'Yes' : 'No'}</p>
+            <p><span className="detail-label">Room Service:</span> {isRoomServiceItem ? 'Yes' : 'No'}</p>
+          </div>
         </div>
 
-        <div className="product-history mt-4">
-          <h3>Activity History</h3>
+        <div className="product-history-section">
+          <h3 className="history-section-title">Activity History</h3>
           {history.length === 0 ? (
-            <p>No recorded history yet.</p>
+            <p className="no-history-message">No activity history recorded yet.</p>
           ) : (
-            <ul className="history-list">
+            <div className="history-items-container">
               {history.slice().reverse().map((item, idx) => (
-                <li key={idx}>
-                  <span className="text-sm">
-                    {item.timestamp
-                      ? new Date(item.timestamp).toLocaleString()
-                      : 'Unknown Date'}
-                  </span>
-                  <span className="ml-2 font-medium">{item.type}</span>
-                  {item.detail && (
-                    <span className="ml-2 text-gray-600">({item.detail})</span>
-                  )}
-                </li>
+                <div key={idx} className="history-item">
+                  <div className="history-item-header">
+                    <div>
+                      <span className="history-action-type">{formatActionType(item.type)}</span>
+                      <span className="history-action-by">by {item.by || 'system'}</span>
+                    </div>
+                    <span className="history-timestamp">
+                      {item.timestamp ? new Date(item.timestamp).toLocaleString() : ''}
+                    </span>
+                  </div>
+                  
+                  <div className="history-item-details">
+                    {renderHistoryDetail(item)}
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
 
-        <div className="modal-actions mt-4">
-          <button className="btn-cancel" onClick={onClose}>Close</button>
+        <div className="modal-actions">
+          <button className="modal-close-button" onClick={onClose}>
+            Close
+          </button>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default ViewProductModal;
